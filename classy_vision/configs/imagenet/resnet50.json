@@ -62,7 +62,7 @@
           {
             "name": "fully_connected",
             "unique_id": "default_head",
-            "num_classes": 1000,
+            "num_classes": 5,
             "fork_block": "block3-2",
             "in_plane": 2048
           }
