@@ -5,6 +5,10 @@
         "name": "CrossEntropyLoss"
     },
     "dataset": {
+        "mixup": {
+            "alpha": 0.2,
+            "num_classes": 5
+        },
         "train": {
             "name": "image_path",
             "batchsize_per_replica": 32,
@@ -50,7 +54,7 @@
     },
     "meters": {
         "accuracy": {
-            "topk": [1, 2]
+            "topk": [1]
         }
     },
     "model": {
