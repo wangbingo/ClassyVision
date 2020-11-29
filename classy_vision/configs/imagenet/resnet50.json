@@ -17,7 +17,7 @@
             "transforms": [{
                 "name": "apply_transform_to_key",
                 "transforms": [
-                    {"name": "RandomResizedCrop", "size": 448},
+                    {"name": "RandomResizedCrop", "size": 512},
                     {"name": "RandomHorizontalFlip"},
                     {"name": "ToTensor"},
                     {
