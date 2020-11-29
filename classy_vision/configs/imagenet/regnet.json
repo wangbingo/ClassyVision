@@ -2,7 +2,9 @@
   "name": "classification_task",
   "num_epochs": 90,
   "loss": {
-    "name": "CrossEntropyLoss"
+    "name": "label_smoothing_cross_entropy",
+    "ignore_index": -1,
+    "smoothing_param": 0.5
   },
   "dataset": {
     "mixup": {
