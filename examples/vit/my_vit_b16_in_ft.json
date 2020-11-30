@@ -2,7 +2,6 @@
   "name": "fine_tuning",
   "reset_heads": false,
   "freeze_trunk": false,
-  "pretrained_checkpoint": "/content/imagenet21k+imagenet2012_ViT-B_16.npz",
   "num_epochs": 8,
   "loss": {
     "name": "soft_target_cross_entropy"
