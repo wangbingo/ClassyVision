@@ -1,29 +1,31 @@
 {
-  "name": "fine_tuning",
-  "reset_heads": false,
-  "freeze_trunk": false,
-  "pretrained_checkpoint": "/content/jx_vit_base_p16_384-83fb41ba.pth",
-  "num_epochs": 8,
+  "name": "classification_task",
+  "num_epochs": 300,
   "loss": {
-    "name": "soft_target_cross_entropy"
+    "name": "label_smoothing_cross_entropy",
+    "smoothing_param": 0.1
   },
+  "mixup": {
+    "alpha": 0.2,
+    "num_classes": 1000
+  },
+  "simulated_global_batchsize": 4096,
   "clip_grad_norm": 1,
-  "simulated_global_batchsize": 512,
   "amp_args": {
-    "opt_level": null
+    "opt_level": "O1"
   },
   "dataset": {
     "train": {
       "name": "image_path",
-      "image_folder": "/content/data/imagenet/train",
-      "batchsize_per_replica": 16,
+      "image_folder": "PATH/TO/IMAGENET/TRAIN",
+      "batchsize_per_replica": 64,
       "num_samples": null,
       "use_shuffle": true,
       "transforms": [
         {
           "name": "apply_transform_to_key",
           "transforms": [
-            {"name": "RandomResizedCrop", "size": 384},
+            {"name": "RandomResizedCrop", "size": 224},
             {"name": "RandomHorizontalFlip"},
             {"name": "imagenet_autoaugment"},
             {"name": "ToTensor"},
@@ -39,16 +41,16 @@
     },
     "test": {
       "name": "image_path",
-      "image_folder": "/content/data/imagenet/train",
-      "batchsize_per_replica": 16,
+      "image_folder": "PATH/TO/IMAGENET/VAL",
+      "batchsize_per_replica": 64,
       "num_samples": null,
       "use_shuffle": false,
       "transforms": [
         {
           "name": "apply_transform_to_key",
           "transforms": [
-            {"name": "Resize", "size": 438},
-            {"name": "CenterCrop", "size": 384},
+            {"name": "Resize", "size": 256},
+            {"name": "CenterCrop", "size": 224},
             {"name": "ToTensor"},
             {
               "name": "Normalize",
@@ -60,16 +62,15 @@
         }
       ]
     }
-
   },
   "meters": {
     "accuracy": {
-      "topk": [1]
+      "topk": [1, 5]
     }
   },
   "model": {
     "name": "vision_transformer",
-    "image_size": 384,
+    "image_size": 224,
     "patch_size": 16,
     "hidden_dim": 768,
     "mlp_dim": 3072,
@@ -81,7 +82,7 @@
       {
         "name": "vision_transformer_head",
         "unique_id": "default_head",
-        "num_classes": 5,
+        "num_classes": 1000,
         "fork_block": "trunk_output",
         "in_plane": 768,
         "hidden_dim": 3072
@@ -89,15 +90,27 @@
     ]
   },
   "optimizer": {
-    "name": "sgd",
-    "weight_decay": 0,
-    "momentum": 0.9,
-    "nesterov": true,
+    "name": "adamw",
+    "betas": [0.9, 0.999],
+    "weight_decay": 0.3,
     "param_schedulers": {
       "lr": {
-        "name": "cosine",
-        "start_value": 0.01,
-        "end_value": 0
+        "name": "composite",
+        "schedulers": [
+          {
+            "name": "linear",
+            "start_value": 0,
+            "end_value": 0.003
+          },
+          {
+            "name": "cosine",
+            "start_value": 0.003,
+            "end_value": 0
+          }
+        ],
+        "update_interval": "step",
+        "interval_scaling": ["rescaled", "fixed"],
+        "lengths": [0.1, 0.9]
       }
     }
   }
